@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Al Madinat Al Jauf - Smart City Hub</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 30px;
+            text-align: center;
+            color: #333;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .header h1 { margin: 0; font-size: 36px; letter-spacing: 1px; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 16px; }
+        
+        /* City Visual Placeholder Card */
+        .city-banner {
+            background: #fff;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .city-banner img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            align-items: stretch;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+            width: 310px;
+            border-top: 5px solid #2a5298;
+            text-align: center;
+        }
+        .card h2 { color: #1e3c72; margin-top: 0; font-size: 20px; }
+        hr { border: 0; height: 1px; background: #eee; margin: 15px 0; }
+        
+        /* 🚨 EMERGENCY POPUP STYLING */
+        #emergency-banner {
+            display: none; 
+            background: linear-gradient(135deg, #d31027 0%, #ea384d 100%);
+            color: white;
+            padding: 25px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(211,16,39,0.3);
+            border: 2px solid #b30000;
+            animation: pulseAlert 1.5s infinite;
+        }
+        @keyframes pulseAlert {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .btn:hover { background: #1e3c72; }
+        #qrcode { margin-top: 20px; display: flex; justify-content: center; }
+        
+        /* Tracking Log Styling Box */
+        .log-box {
+            background: #222;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border-radius: 8px;
+            height: 180px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 13px;
+            line-height: 20px;
+        }
+        .normal-status {
+            color: #27ae60; font-weight: bold; background: #e8f8f0;
+            padding: 5px 10px; border-radius: 20px; display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🏙️ Al Madinat Al Jauf</h1>
+        <p>Central Smart City Operations Dashboard & Transit Matrix</p>
+    </div>
+
+    <div id="emergency-banner">
+        ⚠️ EMERGENCY ATMOSPHERIC ALERT: CRITICAL CO2 BREACH!<br>
+        <span style="font-size: 16px; font-weight: normal; display: block; margin-top: 10px;">
+            Elderly and youth: Evacuate current sectors immediately and head towards **Floor 3 Oxygen Reserves**.
+        </span>
+    </div>
+
+    <div class="city-banner">
+        <img src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1200&q=80" alt="Smart City Infrastructure Concept">
+    </div>
+
+    <div class="container">
+        <div class="card" style="border-top-color: #27ae60;">
+            <h2>🎫 Digital Identity Pass</h2>
+            <hr>
+            <p id="welcome-user">Welcome, Citizen</p>
+            <p style="font-size: 13px; color: #666;">Generate your verified transport credentials:</p>
+            <button class="btn" onclick="generateUserPass('agriculture')">🌾 Get Agriculture Pass</button>
+            <button class="btn" onclick="generateUserPass('energy')">⚡ Get Energy Pass</button>
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="card">
+            <h2>🛗 Lift Transport Grid</h2>
+            <hr>
+            <p id="lift-status-text">Transit Matrix Status: <span class="normal-status">Normal Routing</span></p>
+            <p style="font-size: 13px; color: #666;">Hold your Pass QR up to the scanner webcam.</p>
+            <hr>
+            <h3 style="font-size:15px; color:#1e3c72; text-align:left; margin:5px 0;">🕵️ Live Tracker Stream:</h3>
+            <div id="tracking-log" class="log-box">Awaiting checkpoint scans...</div>
+        </div>
+
+        <div class="card" style="width: 380px;">
+            <h2>💬 System Broadcasts</h2>
+            <hr>
+            <iframe src="https://discord.com/widget?id=YOUR_SERVER_ID_HERE&theme=dark" 
+                    width="100%" height="280" allowtransparency="true" frameborder="0" 
+                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+            </iframe>
+        </div>
+    </div>
+
+    <script>
+        let userName = "Guest";
+
+        window.onload = function() {
+            let entry = prompt("Welcome to Al Madinat Al Jauf. Please enter your name:");
+            if (entry && entry.trim() !== "") {
+                userName = entry.trim();
+                document.getElementById('welcome-user').innerHTML = `Welcome, <strong>${userName}</strong>`;
+            }
+        };
+
+        let qrContainer = document.getElementById("qrcode");
+        function generateUserPass(sectorType) {
+            qrContainer.innerHTML = "";
+            let identityString = `${userName}|${sectorType}`; // Format optimized for parsing
+            new QRCode(qrContainer, {
+                text: identityString,
+                width: 130,
+                height: 130,
+                colorDark : "#1e3c72",
+                colorLight : "#ffffff"
+            });
+        }
+
+        // Real-Time System Updates Sync Loop
+        function queryCityInfrastructureStatus() {
+            // 1. Sync Safety Status layout
+            fetch('status.txt')
+                .then(response => response.text())
+                .then(currentStatus => {
+                    const criticalBanner = document.getElementById('emergency-banner');
+                    const transitStatusDisplay = document.getElementById('lift-status-text');
+                    if (currentStatus.trim() === 'EMERGENCY') {
+                        criticalBanner.style.display = 'block'; 
+                        transitStatusDisplay.innerHTML = 'Transit Matrix Status: <span style="color:red; font-weight:bold;">🚨 AUTOMATED LOCKDOWN</span>';
+                    } else {
+                        criticalBanner.style.display = 'none';  
+                        transitStatusDisplay.innerHTML = 'Transit Matrix Status: <span class="normal-status">Normal Routing</span>';
+                    }
+                }).catch(err => {});
+
+            // 2. Sync Live Tracking Log Window text contents
+            fetch('log.txt')
+                .then(response => response.text())
+                .then(logData => {
+                    const trackingBox = document.getElementById('tracking-log');
+                    if (logData.trim() !== "") {
+                        // Convert newlines to breaks to show scrolling lines cleanly
+                        trackingBox.innerHTML = logData.replace(/\n/g, "<br>");
+                    }
+                }).catch(err => {});
+        }
+
+        setInterval(queryCityInfrastructureStatus, 1000);
+    </script>
+</body>
+</html>
